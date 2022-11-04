@@ -1,0 +1,17 @@
+@startuml
+!include https://raw.githubusercontent.com/plantuml-stdlib/C4-PlantUML/master/C4_Container.puml
+
+Person(customer_servce, "Customer Service", "Enters orders into the system")
+
+Container(orders, "Orders", "Python", "Registers and tracks orders")
+Container(warehouse, "Warehouse", "Python", "Proxy over legacy warehousing system.\nKeeps stocks.")
+Container(shipping, "Shipping", "Python", "Proxy over couriers.\n Provides shipping labels.")
+
+SystemQueue(queue, "Event Broker", "RabbitMQ")
+
+Rel(customer_servce, orders, "Label", "HTTP")
+Rel(orders, queue, "order placed", "AMQP")
+Rel(warehouse, queue, "consumes order paced", "AMQP")
+Rel(warehouse, shipping, "orders shipping labels", "HTTP")
+
+@enduml

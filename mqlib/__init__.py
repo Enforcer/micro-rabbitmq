@@ -28,7 +28,9 @@ class PoolFactory:
 ANONYMOUS_EXCHANGE = ""
 
 
-def publish(queue_name_or_queue: str | Queue, message: dict, headers: dict | None) -> None:
+def publish(
+    queue_name_or_queue: str | Queue, message: dict, headers: dict | None
+) -> None:
     headers = headers or {}
     if isinstance(queue_name_or_queue, Queue):
         queue = queue_name_or_queue.name

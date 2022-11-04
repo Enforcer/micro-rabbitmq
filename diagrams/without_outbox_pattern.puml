@@ -1,0 +1,7 @@
+@startuml
+
+view -> session: add(order)
+view -> session: commit()
+view -> mqlib: publish(...)
+
+@enduml

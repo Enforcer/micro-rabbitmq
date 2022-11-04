@@ -1,0 +1,9 @@
+@startuml
+
+processor -> session: begin() (implicit)
+processor -> session: query(OutboxEntry)
+processor -> mqlib: publish(...)
+processor -> session: delete(...)
+processor -> session: commit()
+
+@enduml
