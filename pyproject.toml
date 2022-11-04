@@ -1,0 +1,42 @@
+[tool.poetry]
+name = "micro-rabbitmq"
+version = "0.0.0"
+description = ""
+authors = ["Sebastian Buczynski <nnplaya@gmail.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.10"
+kombu = "*"
+protobuf = ">=3.12,<4.0"
+watchfiles = "^0.18.0"
+fastapi = {extras = ["all"], version = "^0.85.2"}
+psycopg2-binary = "^2.9.5"
+SQLAlchemy = "^1.4.42"
+pytest = "^7.2.0"
+requests = "*"
+opentelemetry-api = "^1.14.0"
+opentelemetry-exporter-zipkin-proto-http = "^1.14.0"
+opentelemetry-exporter-zipkin-json = "^1.14.0"
+opentelemetry-instrumentation = "^0.35b0"
+opentelemetry-instrumentation-fastapi = "^0.35b0"
+opentelemetry-instrumentation-requests = "^0.35b0"
+opentelemetry-instrumentation-sqlalchemy = "^0.35b0"
+
+[tool.poetry.dev-dependencies]
+black = "*"
+isort = "*"
+flake8 = "*"
+mypy = "*"
+pytest = "*"
+
+[tool.black]
+line-length = 88
+target-version = ['py310']
+
+[tool.isort]
+profile = "black"
+line_length = 88
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"

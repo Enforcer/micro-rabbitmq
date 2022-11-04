@@ -1,0 +1,60 @@
+services:
+  rabbitmq:
+    image: rabbitmq:3.11.2-management
+    ports:
+      - '5672:5672'
+      - '15672:15672'
+  db:
+    image: postgres:14
+    environment:
+      - POSTGRES_PASSWORD=guest
+      - POSTGRES_USER=guest
+    ports:
+      - '5432:5432'
+
+  zipkin:
+    image: openzipkin/zipkin:2.23.19
+    ports:
+      - "9411:9411"
+
+  shell:
+    image: micro-rabbitmq
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+
+  orders:
+    image: micro-rabbitmq
+    volumes:
+      - ./:/usr/src/app
+    environment:
+      - PYTHONPATH=/usr/src/app
+    command: uvicorn orders.api:app --reload --host 0.0.0.0 --port 8100
+    ports:
+      - 8100:8100
+
+  orders_outbox:
+    image: micro-rabbitmq
+    volumes:
+      - ./:/usr/src/app
+    environment:
+      - PYTHONPATH=/usr/src/app
+    command: watchfiles "python orders/outbox_processor.py" orders/
+
+  warehouse_consumer:
+    image: micro-rabbitmq
+    volumes:
+      - ./:/usr/src/app
+    environment:
+      - PYTHONPATH=/usr/src/app
+    command: watchfiles "python warehouse/consumer.py" warehouse/
+
+  shipping:
+    image: micro-rabbitmq
+    volumes:
+      - ./:/usr/src/app
+    environment:
+      - PYTHONPATH=/usr/src/app
+    command: uvicorn shipping.api:app --reload --host 0.0.0.0 --port 8200
+    ports:
+      - 8200:8200
