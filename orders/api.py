@@ -1,8 +1,9 @@
 from fastapi import Depends, FastAPI, Response
+from opentelemetry.trace.propagation.tracecontext import TraceContextTextMapPropagator
 from pydantic import BaseModel, validator
 from sqlalchemy.orm import Session
 
-from orders import db, outbox, queues
+from orders import db, outbox, queues, tracing
 from orders.models import Order
 
 
@@ -36,6 +37,7 @@ app = FastAPI()
 def initialize() -> None:
     db.setup_database()
     queues.setup_queues()
+    app.state.tracer = tracing.setup("orders", app, db.Session.kw["bind"])
 
 
 @app.post("/orders", status_code=202)
@@ -54,7 +56,10 @@ def order(dto: OrderDto, session: Session = Depends(get_session)) -> Response:
         "quantity": order.quantity,
         "product_id": order.product_id,
     }
-    outbox.put(session, message=message, queue=queues.order_placed)
+    headers = {}
+    propagator = TraceContextTextMapPropagator()
+    propagator.inject(carrier=headers)
+    outbox.put(session, message=message, queue=queues.order_placed, headers=headers)
 
     session.commit()
     return Response(status_code=202)

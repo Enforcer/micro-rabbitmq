@@ -19,3 +19,4 @@ class OutboxEntry(Base):
     id = Column(Integer(), primary_key=True)
     queue = Column(String(255), nullable=False)
     data = Column(JSON(), nullable=False)
+    headers = Column(JSON(), nullable=False)

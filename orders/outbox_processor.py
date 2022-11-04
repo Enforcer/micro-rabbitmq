@@ -19,8 +19,10 @@ def main() -> None:
 def single_run() -> None:
     with db.Session() as session:
         with outbox.batch(session, size=BATCH_SIZE) as batch:
-            for queue_name, message in batch:
-                mqlib.publish(queue_name_or_queue=queue_name, message=message)
+            for queue_name, message, headers in batch:
+                mqlib.publish(
+                    queue_name_or_queue=queue_name, message=message, headers=headers
+                )
         session.commit()
 
 
