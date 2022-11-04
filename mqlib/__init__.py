@@ -29,7 +29,7 @@ ANONYMOUS_EXCHANGE = ""
 
 
 def publish(
-    queue_name_or_queue: str | Queue, message: dict, headers: dict | None
+    queue_name_or_queue: str | Queue, message: dict, headers: dict | None = None
 ) -> None:
     headers = headers or {}
     if isinstance(queue_name_or_queue, Queue):
