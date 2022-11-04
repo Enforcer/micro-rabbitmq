@@ -53,7 +53,7 @@ def order(dto: OrderDto, session: Session = Depends(get_session)) -> Response:
         queues.order_placed,
         {
             "id": order.id,
-            "price": order.price,
+            "price": str(order.price),
             "quantity": order.quantity,
             "product_id": order.product_id,
         },
