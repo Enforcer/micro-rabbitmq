@@ -2,8 +2,7 @@ from fastapi import Depends, FastAPI, Response
 from pydantic import BaseModel, validator
 from sqlalchemy.orm import Session
 
-import mqlib
-from orders import db, queues
+from orders import db, outbox, queues
 from orders.models import Order
 
 
@@ -49,15 +48,13 @@ def order(dto: OrderDto, session: Session = Depends(get_session)) -> Response:
     session.add(order)
     session.flush()
 
-    mqlib.publish(
-        queues.order_placed,
-        {
-            "id": order.id,
-            "price": str(order.price),
-            "quantity": order.quantity,
-            "product_id": order.product_id,
-        },
-    )
+    message = {
+        "id": order.id,
+        "price": str(order.price),
+        "quantity": order.quantity,
+        "product_id": order.product_id,
+    }
+    outbox.put(session, message=message, queue=queues.order_placed)
 
     session.commit()
     return Response(status_code=202)

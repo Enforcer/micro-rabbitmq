@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, Numeric
+from sqlalchemy import Column, Integer, Numeric, String
 from sqlalchemy.dialects.postgresql import JSON
 
 from orders.db import Base
@@ -17,4 +17,5 @@ class OutboxEntry(Base):
     __tablename__ = "outbox_entries"
 
     id = Column(Integer(), primary_key=True)
+    queue = Column(String(255), nullable=False)
     data = Column(JSON(), nullable=False)

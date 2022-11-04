@@ -1,17 +1,27 @@
-from orders import db, queues
+from datetime import timedelta
+from time import sleep
+
+import mqlib
+from orders import db, outbox, queues
+
+INTERVAL = timedelta(seconds=5)
+BATCH_SIZE = 100
 
 
 def main() -> None:
     _setup()
 
     while True:
-        break  # TODO: implement outbox processor
         single_run()
+        sleep(INTERVAL.total_seconds())
 
 
 def single_run() -> None:
     with db.Session() as session:
-        session.execute("SELECT 1")
+        with outbox.batch(session, size=BATCH_SIZE) as batch:
+            for queue_name, message in batch:
+                mqlib.publish(queue_name_or_queue=queue_name, message=message)
+        session.commit()
 
 
 def _setup() -> None:
