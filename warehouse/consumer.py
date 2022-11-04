@@ -3,6 +3,7 @@ import logging
 import requests
 
 import mqlib
+from registry.order_placed_pydantic import OrderPlaced
 from warehouse import db, legacy, queues
 
 logging.basicConfig(level=logging.INFO)
@@ -16,9 +17,10 @@ def consume(body: dict, message: mqlib.Message) -> None:
         message.headers,
         message.delivery_info,
     )
-    legacy.reserve_stock(product_id=body["product_id"])
+    order_placed = OrderPlaced(**body)
+    legacy.reserve_stock(product_id=order_placed.product_id)
 
-    sizes = legacy.get_product_sizes(body["product_id"])
+    sizes = legacy.get_product_sizes(order_placed.product_id)
     requests.post(
         "http://shipping:8200/labels",
         json={
